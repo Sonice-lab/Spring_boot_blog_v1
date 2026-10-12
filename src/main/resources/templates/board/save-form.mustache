@@ -1,12 +1,12 @@
 {{> layout/header}}
 
 <style>
-    /* 글쓰기 카드 테마 */
+    /* 폼 카드 테마 */
     .card-custom {
         border: 1px solid #E6E6FA; /* 라벤더 테두리 */
         border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); /* 부드러운 그림자 */
-        overflow: hidden; /* 헤더 영역의 둥근 모서리를 덮지 않도록 설정 */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
     }
 
     /* 카드 헤더 커스텀 */
@@ -14,7 +14,6 @@
         background-color: #E6E6FA; /* 라벤더 배경 */
         color: #5D437A; /* 짙은 보라색 텍스트 */
         border-bottom: none;
-        font-size: 1.25rem;
         padding: 1rem 1.5rem;
     }
 
@@ -23,15 +22,13 @@
         border: 1px solid #E6E6FA;
         border-radius: 8px;
         color: #554A63;
-        padding: 12px;
-        font-size: 1.05rem;
     }
     .form-control-custom:focus {
         border-color: #B5EAD7; /* 포커스 시 라이트그린 테두리 */
-        box-shadow: 0 0 0 0.25rem rgba(181, 234, 215, 0.4); /* 라이트그린 네온(그림자) 효과 */
+        box-shadow: 0 0 0 0.25rem rgba(181, 234, 215, 0.4);
     }
     .form-control-custom::placeholder {
-        color: #B0A8B9; /* 플레이스홀더(안내 문구) 색상을 부드럽게 변경 */
+        color: #B0A8B9;
     }
 
     /* 완료 버튼 커스텀 (라이트그린) */
@@ -41,8 +38,6 @@
         border: none;
         border-radius: 8px;
         font-weight: 600;
-        padding: 14px;
-        font-size: 1.1rem;
         transition: all 0.3s;
     }
     .btn-custom-submit:hover {
@@ -51,14 +46,22 @@
     }
 </style>
 
-<div class="container p-5 d-flex justify-content-center">
-    <!-- 화면이 너무 넓어지면 글쓰기가 불편하므로 max-width를 주어 안정감 있게 배치 -->
-    <div class="card card-custom w-100" style="max-width: 900px;">
-        <div class="card-header card-header-custom">
-            <i class="fa-solid fa-pen-nib me-2"></i><b>새 글 작성하기</b>
-        </div>
-        <div class="card-body p-4 p-md-5">
+<div class="container p-5">
+    <div class="card card-custom">
+        <div class="card-header card-header-custom"><b>글쓰기</b></div>
+        <div class="card-body">
             {{! name 속성의 값이 서버에서 받을 때의 이름이 됩니다 }}
             <form action="/board/save" method="post">
-                <div class="mb-4">
-                    <input type="text" class="form-control form-control-custom" placeholder="제목을 입력해 주세요
+                <div class="mb-3">
+                    <input type="text" class="form-control form-control-custom" placeholder="제목" name="title">
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control form-control-custom" rows="5" placeholder="내용" name="content"></textarea>
+                </div>
+                <button class="btn btn-custom-submit form-control">글쓰기 완료</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}
