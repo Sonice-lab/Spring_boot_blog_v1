@@ -1,0 +1,106 @@
+{{> layout/header}}
+
+<style>
+    /* 배경 및 레이아웃 정렬 */
+    .error-page-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 70vh; /* 헤더/푸터 사이 중앙 정렬을 위한 넉넉한 높이 */
+        padding: 2rem 1rem;
+    }
+
+    /* 에러 메시지 카드 스타일 (테마 공통 박스 디자인) */
+    .error-card {
+        background: #ffffff;
+        border: 1px solid #E6E6FA; /* 라벤더 테두리 */
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); /* 부드러운 그림자 */
+        text-align: center;
+        max-width: 550px;
+        width: 100%;
+        padding: 3.5rem 2rem;
+    }
+
+    /* 에러 제목 */
+    .error-card h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #5D437A; /* 짙은 보라색 */
+        letter-spacing: -0.05rem;
+    }
+
+    /* 서버 오류 아이콘 커스텀 */
+    .error-icon {
+        font-size: 4.5rem;
+        color: #F5B8C0; /* 시각적 자극을 줄인 파스텔 코랄 톤 (오류의 의미 유지) */
+        margin-bottom: 1.5rem;
+    }
+
+    /* 에러 상세 메시지 */
+    .error-card .error-msg {
+        font-size: 1.15rem;
+        font-weight: 500;
+        color: #554A63; /* 부드러운 보라빛 회색 */
+        word-break: keep-all;
+        line-height: 1.6;
+    }
+
+    /* 에러 서브 메시지 */
+    .error-card .error-sub-msg {
+        font-size: 0.95rem;
+        color: #7A6F8B;
+        line-height: 1.5;
+    }
+
+    /* 버튼 공통 호버 애니메이션 */
+    .error-btn-group .btn {
+        transition: all 0.3s ease-in-out;
+    }
+    .error-btn-group .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* 메인페이지 이동 버튼 (라이트그린) */
+    .btn-custom-main {
+        background-color: #B5EAD7;
+        color: #1B402E;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 32px; /* 버튼 가로 길이를 여유있게 주어 안정감 확보 */
+    }
+    .btn-custom-main:hover {
+        background-color: #9CD5C0;
+        color: #1B402E;
+    }
+</style>
+
+<!-- 메인 컨텐츠 영역 -->
+<div class="error-page-wrapper">
+    <div class="container d-flex justify-content-center">
+        <div class="error-card">
+
+            <!-- 시각적 효과를 위한 아이콘 (SVG 대신 FontAwesome의 '서버' 아이콘 사용) -->
+            <div class="error-icon">
+                <i class="fa-solid fa-server"></i>
+            </div>
+
+            <h1>Internal Server Error 500</h1>
+
+            <!-- 라벤더 색상의 구분선 -->
+            <hr class="my-4" style="border-top: 2px solid #E6E6FA; opacity: 1;">
+
+            <h3 class="error-msg mb-2">{{msg}}</h3>
+            <p class="error-sub-msg mb-5">서버에 일시적인 오류가 발생했습니다.<br>잠시 후 다시 시도해 주세요.</p>
+
+            <!-- 404 페이지와 동일하게 메인으로 돌아가는 단일 버튼 구성 -->
+            <div class="error-btn-group d-flex justify-content-center">
+                <a href="/" class="btn btn-custom-main">메인페이지로 돌아가기</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}

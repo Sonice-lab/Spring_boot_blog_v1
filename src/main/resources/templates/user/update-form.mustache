@@ -1,0 +1,92 @@
+{{> layout/header}}
+
+<style>
+    /* 폼 카드 테마 (공통 톤앤매너) */
+    .card-custom {
+        border: 1px solid #E6E6FA; /* 라벤더 테두리 */
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
+
+    /* 카드 헤더 커스텀 */
+    .card-header-custom {
+        background-color: #E6E6FA;
+        color: #5D437A; /* 짙은 보라색 텍스트 */
+        border-bottom: none;
+        font-size: 1.3rem;
+        padding: 1.2rem 1.5rem;
+        text-align: center;
+    }
+
+    /* 입력창 커스텀 */
+    .form-control-custom {
+        border: 1px solid #E6E6FA;
+        border-radius: 8px;
+        color: #554A63;
+        padding: 12px;
+        font-size: 1.05rem;
+    }
+    .form-control-custom:focus {
+        border-color: #B5EAD7; /* 포커스 시 라이트그린 테두리 */
+        box-shadow: 0 0 0 0.25rem rgba(181, 234, 215, 0.4);
+    }
+    .form-control-custom::placeholder {
+        color: #B0A8B9;
+    }
+
+    /* 읽기 전용(readonly) 입력창 스타일 설정 */
+    .readonly-custom {
+        background-color: #FAFAFD !important; /* 아주 옅은 회보라색 배경 */
+        color: #7A6F8B; /* 텍스트 색상을 약간 흐리게 */
+        cursor: not-allowed; /* 마우스 커서를 차단 모양으로 변경 */
+    }
+    .readonly-custom:focus {
+        border-color: #E6E6FA; /* 포커스 효과 제거 */
+        box-shadow: none;
+    }
+
+    /* 수정 완료 버튼 커스텀 (라이트그린) */
+    .btn-custom-submit {
+        background-color: #B5EAD7;
+        color: #1B402E;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 14px;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    .btn-custom-submit:hover {
+        background-color: #9CD5C0;
+        color: #1B402E;
+    }
+</style>
+
+<div class="container p-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="card card-custom w-100" style="max-width: 500px;">
+        <div class="card-header card-header-custom">
+            <!-- 사용자 설정(톱니바퀴) 아이콘 추가 -->
+            <i class="fa-solid fa-user-gear me-2"></i><b>회원정보 수정</b>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            <form action="/user/update" method="post">
+                <div class="mb-4">
+                    <label class="form-label fw-bold mb-2" style="color: #5D437A;">사용자명</label>
+                    <input type="text" class="form-control form-control-custom readonly-custom" value="{{user.username}}" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold mb-2" style="color: #5D437A;">새 비밀번호</label>
+                    <input type="password" class="form-control form-control-custom" placeholder="새 비밀번호를 입력해 주세요." name="password">
+                </div>
+                <div class="mb-5">
+                    <label class="form-label fw-bold mb-2" style="color: #5D437A;">이메일</label>
+                    <input type="email" class="form-control form-control-custom readonly-custom" name="email" value="{{user.email}}" readonly>
+                </div>
+                <button type="submit" class="btn btn-custom-submit form-control">수정 완료</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}

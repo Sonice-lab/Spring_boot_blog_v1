@@ -1,0 +1,153 @@
+{{> layout/header}}
+
+<style>
+    /* 게시글 본문 영역 테마 */
+    .board-content-box {
+        background-color: #FAFAFD; /* 헤더/푸터와 어울리는 아주 옅은 라벤더빛 배경 */
+        border: 1px solid #E6E6FA; /* 라벤더 색상 테두리 */
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); /* 부드러운 그림자 효과 */
+    }
+
+    /* 텍스트 강조 색상 */
+    .text-theme-primary {
+        color: #5D437A; /* 짙은 보라색 */
+    }
+    .text-theme-secondary {
+        color: #7A6F8B; /* 부드러운 보라빛 회색 */
+    }
+    hr.theme-divider {
+        border-top: 2px solid #E6E6FA;
+        opacity: 1;
+    }
+
+    /* 버튼 커스텀: 수정 (라이트그린) */
+    .btn-custom-edit {
+        background-color: #B5EAD7;
+        color: #1B402E;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    .btn-custom-edit:hover {
+        background-color: #9CD5C0;
+        color: #1B402E;
+    }
+
+    /* 버튼 커스텀: 삭제 (부드러운 코랄/레드 톤) */
+    .btn-custom-delete {
+        background-color: #FAD4D8;
+        color: #8A2530;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    .btn-custom-delete:hover {
+        background-color: #F5B8C0;
+        color: #8A2530;
+    }
+
+    /* 댓글 영역 테마 */
+    .card-custom {
+        border: 1px solid #E6E6FA;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .card-custom .card-footer {
+        background-color: #E6E6FA; /* 라벤더 배경 */
+        color: #5D437A;
+        border-top: none;
+    }
+
+    /* 댓글 작성자 뱃지 */
+    .badge-custom {
+        background-color: #5D437A; /* 짙은 보라색 뱃지 */
+        color: white;
+        font-weight: 500;
+        padding: 5px 12px;
+        border-radius: 8px;
+    }
+
+    /* 텍스트 에어리어 포커스 테마 */
+    .form-control-custom:focus {
+        border-color: #B5EAD7;
+        box-shadow: 0 0 0 0.25rem rgba(181, 234, 215, 0.4);
+    }
+
+    /* 휴지통 아이콘 */
+    .btn-trash {
+        color: #B0A8B9;
+        transition: color 0.3s;
+    }
+    .btn-trash:hover {
+        color: #D9534F;
+    }
+</style>
+
+<div class="container p-5">
+
+    <!-- 수정, 삭제 버튼 영역 -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="/board/{{board.id}}/update" class="btn btn-custom-edit me-2 px-4">수정</a>
+        <form action="/board/{{board.id}}/delete" method="post" class="m-0">
+            <button class="btn btn-custom-delete px-4">삭제</button>
+        </form>
+    </div>
+
+    <!-- 게시글 본문 영역 -->
+    <div class="board-content-box mb-5">
+        <div class="d-flex justify-content-between align-items-end mb-3">
+            <h2 class="text-theme-primary fw-bold mb-0">{{board.title}}</h2>
+            <div class="text-theme-secondary">
+                <i class="fa-solid fa-user me-1"></i><b>{{board.user.username}}</b>
+            </div>
+        </div>
+        <hr class="theme-divider">
+        <div class="m-4 p-2" style="font-size: 1.1rem; color: #554A63; min-height: 200px;">
+            {{board.content}}
+        </div>
+    </div>
+
+    <!-- 댓글 영역 -->
+    <div class="card card-custom mt-4">
+        <div class="card-body">
+            <form action="/reply/save" method="post">
+                <textarea class="form-control form-control-custom" rows="2" name="comment" placeholder="따뜻한 댓글을 남겨주세요." style="border-color: #E6E6FA;"></textarea>
+                <div class="d-flex justify-content-end mt-2">
+                    <button type="submit" class="btn btn-custom-edit px-4">댓글 등록</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-footer py-3">
+            <i class="fa-regular fa-comments me-2"></i><b>댓글 목록</b>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center">
+                    <div class="badge-custom me-3">박지훈</div>
+                    <div style="color: #554A63;">댓글 내용입니다</div>
+                </div>
+                <form action="/reply/1/delete" method="post" class="m-0">
+                    <button class="btn btn-trash p-0 fs-5"><i class="fa-solid fa-trash"></i></button>
+                </form>
+            </div>
+
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center">
+                    <div class="badge-custom me-3">이서연</div>
+                    <div style="color: #554A63;">댓글 내용입니다</div>
+                </div>
+                <form action="/reply/2/delete" method="post" class="m-0">
+                    <button class="btn btn-trash p-0 fs-5"><i class="fa-solid fa-trash"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}
