@@ -14,9 +14,11 @@
     .text-theme-primary {
         color: #5D437A; /* 짙은 보라색 */
     }
+
     .text-theme-secondary {
         color: #7A6F8B; /* 부드러운 보라빛 회색 */
     }
+
     hr.theme-divider {
         border-top: 2px solid #E6E6FA;
         opacity: 1;
@@ -31,6 +33,7 @@
         font-weight: 500;
         transition: all 0.3s;
     }
+
     .btn-custom-edit:hover {
         background-color: #9CD5C0;
         color: #1B402E;
@@ -45,6 +48,7 @@
         font-weight: 500;
         transition: all 0.3s;
     }
+
     .btn-custom-delete:hover {
         background-color: #F5B8C0;
         color: #8A2530;
@@ -56,6 +60,7 @@
         border-radius: 12px;
         overflow: hidden;
     }
+
     .card-custom .card-footer {
         background-color: #E6E6FA; /* 라벤더 배경 */
         color: #5D437A;
@@ -82,6 +87,7 @@
         color: #B0A8B9;
         transition: color 0.3s;
     }
+
     .btn-trash:hover {
         color: #D9534F;
     }
@@ -90,19 +96,21 @@
 <div class="container p-5">
 
     <!-- 수정, 삭제 버튼 영역 -->
-    <div class="d-flex justify-content-end mb-3">
-        <a href="/board/{{board.id}}/update" class="btn btn-custom-edit me-2 px-4">수정</a>
-        <form action="/board/{{board.id}}/delete" method="post" class="m-0">
-            <button class="btn btn-custom-delete px-4">삭제</button>
-        </form>
-    </div>
+    {{#isOwner}}
+        <div class="d-flex justify-content-end mb-3">
+            <a href="/board/{{board.id}}/update" class="btn btn-custom-edit me-2 px-4">수정</a>
+            <form action="/board/{{board.id}}/delete" method="post" class="m-0">
+                <button class="btn btn-custom-delete px-4">삭제</button>
+            </form>
+        </div>
+    {{/isOwner}}
 
     <!-- 게시글 본문 영역 -->
     <div class="board-content-box mb-5">
         <div class="d-flex justify-content-between align-items-end mb-3">
             <h2 class="text-theme-primary fw-bold mb-0">{{board.title}}</h2>
             <div class="text-theme-secondary">
-                <i class="fa-solid fa-user me-1"></i><b>{{board.user.username}}</b>
+                <i class="fa-solid fa-user me-1"></i><b>{{board.username}}</b>
             </div>
         </div>
         <hr class="theme-divider">
@@ -115,7 +123,8 @@
     <div class="card card-custom mt-4">
         <div class="card-body">
             <form action="/reply/save" method="post">
-                <textarea class="form-control form-control-custom" rows="2" name="comment" placeholder="따뜻한 댓글을 남겨주세요." style="border-color: #E6E6FA;"></textarea>
+                <textarea class="form-control form-control-custom" rows="2" name="comment" placeholder="따뜻한 댓글을 남겨주세요."
+                          style="border-color: #E6E6FA;"></textarea>
                 <div class="d-flex justify-content-end mt-2">
                     <button type="submit" class="btn btn-custom-edit px-4">댓글 등록</button>
                 </div>

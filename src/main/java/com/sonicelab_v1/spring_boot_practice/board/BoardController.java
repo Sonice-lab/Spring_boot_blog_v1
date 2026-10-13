@@ -3,6 +3,7 @@ package com.sonicelab_v1.spring_boot_practice.board;
 
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception403;
 import com.sonicelab_v1.spring_boot_practice._core.util.Define;
+import com.sonicelab_v1.spring_boot_practice.user.SessionUserDto;
 import com.sonicelab_v1.spring_boot_practice.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class BoardController {
     // 1. 게시글 목록 조회
     @GetMapping({"/", "/board/list"})
     public String list(Model model) {
-        List<Board> boardList = boardService.findAll();
+        List<BoardResponse.ListDto> boardList = boardService.findAll();
         model.addAttribute("boardList", boardList);
         return "board/list";
     }
@@ -40,9 +41,15 @@ public class BoardController {
     // @PathVariable: URL 경로(Path) 자체에 포함된 변수 값을 서버로 가져올 때
     //          특정 데이터(리소스) 1개를 콕 집어서 식별할 때
     @GetMapping({"/board/{id}"})
-    public String detail(@PathVariable(name = "id") Long id, Model model) {
-        Board board = boardService.findById(id);
-        model.addAttribute("board", board);
+    public String detail(@PathVariable(name = "id") Long id, Model model, HttpSession session) {
+        BoardResponse.DetailDto detailDto = boardService.findById(id);
+        // 데이터 조회가 필요한가? -> 필요함
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        // 로그인을 완료했으며, 작성자 본인일 때만 수정/삭제 버튼 표시
+        boolean isOwner = sessionUserDto != null && detailDto.getUserId().equals(sessionUserDto.getId());
+
+        model.addAttribute("board", detailDto);
+        model.addAttribute("isOwner", isOwner);
         return "board/detail";
     }
 
@@ -56,22 +63,20 @@ public class BoardController {
     @PostMapping({"/board/save"})
     public String save(BoardRequest.SaveDto saveDto, HttpSession session) {
         saveDto.validate();
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        boardService.save(saveDto, sessionUser);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        boardService.save(saveDto, sessionUserDto);
         return "redirect:/";
     }
 
-    // todo - 인가 처리(추후) 서비스단으로 이동 예정
+
     // 4. 게시글 수정하기
     // GET   http://localhost:8080/board/1/update  (수정 화면 요청)
     @GetMapping({"board/{id}/update"})
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-        Board board = boardService.findById(id);
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if (!board.isOwner(sessionUser.getId())) {
-            throw new Exception403("수정할 권한이 없습니다.");
-        }
-        model.addAttribute("board", board);
+
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        BoardResponse.UpdateFormDto updateFormDto = boardService.findByIdAndUpdateForm(id, sessionUserDto.getId());
+        model.addAttribute("board", updateFormDto);
         return "board/update-form";
     }
 
@@ -85,8 +90,8 @@ public class BoardController {
         //유효성 검사
         updateDto.validate();
         //서비스 계층에서 업데이트로 넘김
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        boardService.updateById(id, updateDto, sessionUser);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        boardService.updateById(id, updateDto, sessionUserDto);
 
         // 성공했다면 - PRG 패턴 구현 -> 수정 완료 후 해당 게시글 상세보기로 리다이렉트 처리
         // PRG 패턴: POST, Redirect, GET의 앞 글자를 딴 설계 방식
@@ -98,8 +103,8 @@ public class BoardController {
     // 5. 게시글 삭제
     @PostMapping("board/{id}/delete")
     public String delete(@PathVariable Long id, HttpSession session) throws Exception403 {
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        boardService.deleteById(id, sessionUser);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        boardService.deleteById(id, sessionUserDto);
         // 삭제 성공 후 메인 페이지 리다이렉트
         return "redirect:/";
     }

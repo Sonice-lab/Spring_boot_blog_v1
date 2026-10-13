@@ -3,6 +3,7 @@ package com.sonicelab_v1.spring_boot_practice._core.config;
 
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.IpBlockInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.LoginInterceptor;
+import com.sonicelab_v1.spring_boot_practice._core.interceptor.SessionUserModelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -16,11 +17,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
     // 로그인 인터셉트와의 관계 -> 연관관계
     private final IpBlockInterceptor ipBlockInterceptor;
     private final LoginInterceptor loginInterceptor;
+    private final SessionUserModelInterceptor sessionUserModelInterceptor;
 
     //loginInterceptor를 시스템에 등록
     //내가 정의한 인터셉트를 설정 클래스에 등록할 수 있다.
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
+        // 0. 세션의 로그인 정보를 화면 데이터(Model)에 담아주는 인터셉터
+        registry.addInterceptor(sessionUserModelInterceptor)
+                        .addPathPatterns("/**"); //모든 경로에 대한 부분
+
 
         // 1. 차단한 IP 접근의 경우 접속을 막기 위한 인터셉터
         registry.addInterceptor(ipBlockInterceptor)

@@ -14,7 +14,7 @@ import java.util.Set;
 public class IpBlockInterceptor implements HandlerInterceptor {
 
     // 차단할 IP리스트
-    private static final Set<String> BLOCKED_IPS = Set.of("192.168.5.10", "192.168.7.230");
+    private static final Set<String> BLOCKED_IPS = Set.of("192.168.7.230");
 
     // 클라이언트의 실제 IP를 추출하는 로직
     private String getClientIp(HttpServletRequest request) {
@@ -22,9 +22,9 @@ public class IpBlockInterceptor implements HandlerInterceptor {
         String ip = request.getHeader("X-forwarded-for");
 
         //헤더에 값이 없으면 기본 방식(RemoteAddr)으로 추출
-        if(ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
-        }else {
+        } else {
             //다중 프록시를 거친 경우 쉼표(,)로 구분되므로 첫번째 IP만 추출
             ip = ip.split(",")[0].trim();
         }
@@ -45,10 +45,10 @@ public class IpBlockInterceptor implements HandlerInterceptor {
 
         // 클라이언트 IP 추출
         String clientIp = getClientIp(request);
-        System.out.println("현재 접속 IP: " +  clientIp);
+        System.out.println("현재 접속 IP: " + clientIp);
 
         // 차단된 IP인지 확인
-        if(isBlockedIp(clientIp)) {
+        if (isBlockedIp(clientIp)) {
             //차단된 IP라면 커스텀 예외 발생(컨트롤러도 넘어가지 않음)
             throw new Exception403("사이트에 접근할 수 없는 IP 주소입니다.");
         }

@@ -3,6 +3,7 @@ package com.sonicelab_v1.spring_boot_practice._core.interceptor;
 
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception401;
 import com.sonicelab_v1.spring_boot_practice._core.util.Define;
+import com.sonicelab_v1.spring_boot_practice.user.SessionUserDto;
 import com.sonicelab_v1.spring_boot_practice.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +30,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         //request.getSession(): 로그인하지 않은 사용자에게로 빈 세션이 생성된다.
         HttpSession session = request.getSession(false);
 
-        User sessionUser = (session == null) ? null : (User) session.getAttribute(Define.SESSION_USER);
-        if(sessionUser == null) {
+        SessionUserDto sessionUserDto = (session == null) ? null : (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        if(sessionUserDto == null) {
             throw new Exception401("로그인을 먼저 진행해주세요.");
         }
         return true;

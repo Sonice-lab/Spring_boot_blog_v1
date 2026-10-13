@@ -1,7 +1,9 @@
 package com.sonicelab_v1.spring_boot_practice._core.error;
 
 
+import com.sonicelab_v1.spring_boot_practice._core.util.Define;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
@@ -17,19 +19,22 @@ public class GlobalExceptionHandler {
 
     // 특정 예외 타입이 발생했을 때 실행될 메서드로 지정
     @ExceptionHandler(Exception400.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String ex400(Exception400 e, HttpServletRequest request, Model model) {
-       log.warn("=== 400 Bad Request 에러 발생 ===");
-       log.warn("요청 URL: {}", request.getRequestURI());
-       log.warn("에러메세지: {}", e.getMessage());
-       log.warn("예외클래스: {}", e.getClass().getSimpleName());
+        log.warn("=== 400 Bad Request 에러 발생 ===");
+        log.warn("요청 URL: {}", request.getRequestURI());
+        log.warn("에러메세지: {}", e.getMessage());
+        log.warn("예외클래스: {}", e.getClass().getSimpleName());
 
-       model.addAttribute("msg", e.getMessage());
+        addSessionUserDto(request, model); // 헤더에 sessionUserDto 담기
+        model.addAttribute("msg", e.getMessage());
 
-       return "err/400";
+        return "err/400";
 
     }
 
     @ExceptionHandler(Exception401.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String ex401(Exception401 e, HttpServletRequest request, RedirectAttributes rttr) {
         log.warn("=== 401 Unauthorized 에러 발생 ===");
         log.warn("요청 URL: {}", request.getRequestURI());
@@ -63,12 +68,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception404.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String ex404(Exception404 e, HttpServletRequest request, Model model) {
         log.warn("=== 404 Not Found 에러 발생 ===");
         log.warn("요청 URL: {}", request.getRequestURI());
         log.warn("에러메세지: {}", e.getMessage());
         log.warn("예외클래스: {}", e.getClass().getSimpleName());
 
+        addSessionUserDto(request, model);
         model.addAttribute("msg", e.getMessage());
 
         return "err/404";
@@ -76,12 +83,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception500.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String ex500(Exception500 e, HttpServletRequest request, Model model) {
         log.warn("=== 500 Internal Server Error 에러 발생 ===");
         log.warn("요청 URL: {}", request.getRequestURI());
         log.warn("서버오류: {}", e.getMessage());
         log.warn("스택 트레이스: ", e); // 전체 스택 트래이스 포함
 
+        addSessionUserDto(request, model);
         model.addAttribute("msg", "네트워크에 일시적인 장애가 발생했습니다.");
 
         return "err/500";
@@ -90,6 +99,7 @@ public class GlobalExceptionHandler {
 
     // 기타 모든 RuntimeException 처리(최후의 보루)
     @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String ex500(RuntimeException e, HttpServletRequest request, Model model) {
         log.warn("=== 예상치 못한 언타입 에러 발생 ===");
         log.warn("요청 URL: {}", request.getRequestURI());
@@ -103,4 +113,12 @@ public class GlobalExceptionHandler {
 
     }
 
+    //오류 화면에서도 Header의 로그인 메뉴가 보이도록 sessionUserDto Model에 추가
+    private void addSessionUserDto(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession(false);
+        // 방어적 코드
+        if (session != null && session.getAttribute(Define.SESSION_USER) != null) {
+            model.addAttribute(Define.SESSION_USER, session.getAttribute(Define.SESSION_USER));
+        }
+    }
 }

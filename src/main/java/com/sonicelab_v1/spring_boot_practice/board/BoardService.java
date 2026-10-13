@@ -3,7 +3,9 @@ package com.sonicelab_v1.spring_boot_practice.board;
 
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception403;
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception404;
+import com.sonicelab_v1.spring_boot_practice.user.SessionUserDto;
 import com.sonicelab_v1.spring_boot_practice.user.User;
+import com.sonicelab_v1.spring_boot_practice.user.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,16 +22,18 @@ import java.util.List;
 // 데이터베이스 락(lock)을 최소화하여 동시성 성능 개선
 public class BoardService {
     private final BoardJpaRepository boardJpaRepository;
+    private final UserJpaRepository userJpaRepository;
 
 
     // 1. 게시글 저장하기
     @Transactional //데이터 수정이 필요하므로 트랜잭션 읽기 전용 설정을 해제하고 쓰기 가능한 트랜잭션으로 실행
-    public Board save(BoardRequest.SaveDto saveDto, User sessionUser) {
+    public Board save(BoardRequest.SaveDto saveDto, SessionUserDto sessionUser) {
         log.info("게시글 저장 서비스 - 제목: {}, 작성자: {}",
                 saveDto.getTitle(), sessionUser.getUsername());
 
-        Board board = saveDto.toEntity(sessionUser);
-        Board savedBoard = boardJpaRepository.save(board); //pk, id, 생성시간이 포함되어있음
+        // Board board = saveDto.toEntity(sessionUser);
+        User user = userJpaRepository.getReferenceById(sessionUser.getId());
+        Board savedBoard = boardJpaRepository.save(saveDto.toEntity(user)); //pk, id, 생성시간이 포함되어있음
 
         log.info("게시글 저장 완료 - ID: {}, 제목: {}",
                 savedBoard.getId(), savedBoard.getTitle());
@@ -39,41 +43,54 @@ public class BoardService {
 
     // 2. 게시글 상세조회
     // 기본키로 조회 -> 트랜잭션을 걸 필요 없음
-    public Board findById(Long id) {
+    public BoardResponse.DetailDto findById(Long id) {
         log.info("게시글 상세 조회 서비스 - ID: {}", id);
-
-        //boardJpaRepository.findById(id) <- 이 메서드 대신 JOIN FETCH를 사용한다.
         // 직접 정의한 쿼리 작성
         Board board = boardJpaRepository.findByIDJoinUser(id)
-                .orElseThrow(() -> {
-                    log.warn("게시글 조회 실패 - ID: {}", id);
-                    return new Exception404("게시글을 찾을 수 없습니다.");
-                });
-        log.info("게시글 상세 조회 완료 - 제목: {}, 작성자: {}", id,
+                .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
+        log.info("게시글 상세 조회 완료 - 제목: {}, 작성자: {}",
                 board.getTitle(), board.getUser().getUsername());
-        return board;
+        return new BoardResponse.DetailDto(board);
     }
 
     // 3. 게시글 목록조회
-    public List<Board> findAll() {
-        log.info("게시글 목록 조회 시작 - ID: {}");
-
+    public List<BoardResponse.ListDto> findAll() {
+        log.info("게시글 목록 조회 시작");
         // 리스트 타입으로 변환
         // 문제점: 정렬이 필요함(Order by가 통하지 않음)
         List<Board> boardList = boardJpaRepository.findAllJoinUser();
+        // 메서드 참조 문법 활용
+        // 1. 리스트 안의 요소들을 컨베이어 벨트 위에 올려두고 하나씩 순차적으로 가공
+        // 2. 스트림으로 흘러가는 데이터들을 다른 형태의 객체로 변환(Mapping)해 주는 역할
+        // 3. map을 거치면서 Board에서 BoardResponse.ListDto로 변환된 요소들을 다시 모아
+        // 새로운 리스트(List<BoardResponse.ListDto>)로 묶어서 반환
+        return boardList.stream() // 1.
+                .map(BoardResponse.ListDto::new) // 2.
+                .toList(); // 3.
+    }
 
-        log.info("게시글 목록 조회 완료 - ID: {}");
-        return boardList;
+    // 4. 게시글 수정 화면 요청(인가 검사) - 권한체크
+    @Transactional
+    public BoardResponse.UpdateFormDto findByIdAndUpdateForm(Long id, Long userId) {
+        Board board = boardJpaRepository.findByIDJoinUser(id)
+                .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
+
+        // 인가 검사
+        if (!board.isOwner(userId)) {
+            throw new Exception403("게시글 수정 권한이 없습니다.");
+        }
+        return new BoardResponse.UpdateFormDto(board);
     }
 
     // 4. 게시글 수정
     @Transactional
-    public Board updateById(Long id, BoardRequest.UpdateDto updateDto, User sessionUser) {
+    public Board updateById(Long id, BoardRequest.UpdateDto updateDto, SessionUserDto sessionUser) {
         log.info("게시글 목록 수정 시작");
 
         //수정하기 전에 게시글을 먼저 조회해야 한다.
         // 가. 게시글 조회
-        Board board = findById(id);
+        Board board = boardJpaRepository.findByIDJoinUser(id)
+                .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
 
         // 나. 권한 체크
         if (!board.isOwner(sessionUser.getId())) {
@@ -90,10 +107,11 @@ public class BoardService {
 
     // 5. 게시글 삭제
     @Transactional
-    public void deleteById(Long id, User sessionUser) {
+    public void deleteById(Long id, SessionUserDto sessionUser) {
         log.info("게시글 삭제 시작");
         // 조회 시작
-        Board board = findById(id);
+        Board board = boardJpaRepository.findByIDJoinUser(id)
+                .orElseThrow(() -> new Exception404("게시글을 찾을 수 없습니다."));
 
         // 권한 확인
         if (!board.isOwner(sessionUser.getId())) {
