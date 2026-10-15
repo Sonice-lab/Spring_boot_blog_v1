@@ -4,6 +4,7 @@ package com.sonicelab_v1.spring_boot_practice.reply;
 import com.sonicelab_v1.spring_boot_practice.board.Board;
 import com.sonicelab_v1.spring_boot_practice.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +27,20 @@ public class Reply {
     //외부에서 사용하기 위한 생성자 만들기
     // 자바에서는 이러한 기능을 생성자 오버로딩이라고 한다.
     // id와 createdAt은 자동으로 채워지므로 빌드에서 제외
+    @Builder
+    public Reply(String comment, User user, Board board) {
+        this.id = id;
+        this.comment = comment;
+        this.createdAt = createdAt;
+        this.user = user;
+        this.board = board;
+    }
+
+
+
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //auto_increment 할당을 위함
     private Long id;
@@ -34,7 +49,7 @@ public class Reply {
 
     //pc -> db
     @CreationTimestamp
-    private Timestamp createAt;
+    private Timestamp createdAt;
 
     // 단방향 N:1 관계 - 외래키 user_id를 가짐
     @ManyToOne(fetch = FetchType.LAZY)  //관계차수 셋팅 -> 필요할 때 데이터를 가지고 오겠다.

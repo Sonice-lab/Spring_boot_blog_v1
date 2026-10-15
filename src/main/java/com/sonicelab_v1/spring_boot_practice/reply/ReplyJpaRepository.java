@@ -1,12 +1,13 @@
 package com.sonicelab_v1.spring_boot_practice.reply;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ReplyJpaRepository {
+public interface ReplyJpaRepository extends JpaRepository<Reply, Long> {
 
     // 기본적인 CRUD 기능 안 만들어도 됨 -> 다 구현되어있기 때문
     /**

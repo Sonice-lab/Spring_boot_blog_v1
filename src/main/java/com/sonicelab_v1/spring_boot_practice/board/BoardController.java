@@ -3,6 +3,8 @@ package com.sonicelab_v1.spring_boot_practice.board;
 
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception403;
 import com.sonicelab_v1.spring_boot_practice._core.util.Define;
+import com.sonicelab_v1.spring_boot_practice.reply.ReplyResponse;
+import com.sonicelab_v1.spring_boot_practice.reply.ReplyService;
 import com.sonicelab_v1.spring_boot_practice.user.SessionUserDto;
 import com.sonicelab_v1.spring_boot_practice.user.User;
 import jakarta.servlet.http.HttpSession;
@@ -23,6 +25,7 @@ public class BoardController {
 
     // DI 처리
     private final BoardService boardService;
+    private final ReplyService replyService;
 
     //주의) Httpsession 은 상수 선언할 경우 프로그램이 너무 무거워지니까
     // 필요할 때마다 의존 관계를 이용해서 활용할 것
@@ -45,11 +48,20 @@ public class BoardController {
         BoardResponse.DetailDto detailDto = boardService.findById(id);
         // 데이터 조회가 필요한가? -> 필요함
         SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+
+        // 로그인 하지 않았으면 null 설정
+        Long sessionUserId = (sessionUserDto == null) ? null : sessionUserDto.getId();
+
         // 로그인을 완료했으며, 작성자 본인일 때만 수정/삭제 버튼 표시
         boolean isOwner = sessionUserDto != null && detailDto.getUserId().equals(sessionUserDto.getId());
 
+        // 댓글 목록 조회
+        List<ReplyResponse.ListDto> replyList = replyService.findAllByBoardId(id, sessionUserId);
+
         model.addAttribute("board", detailDto);
         model.addAttribute("isOwner", isOwner);
+        model.addAttribute("replyList", replyList);
+
         return "board/detail";
     }
 

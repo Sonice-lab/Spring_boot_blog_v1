@@ -40,4 +40,7 @@ public interface BoardJpaRepository extends JpaRepository<Board, Long> {
     // Optional은 자바 8부터 도입된 기능으로, 'null일 수도 있는 객체를 안전하게 감싸는 상자(Wrapper 클래스)를 의미
     @Query("SELECT b FROM Board b JOIN FETCH b.user u ORDER BY b.id DESC")
     List<Board> findAllJoinUser();
+
+    // 게시글 페이징 조회(작성자와 함께 조인해서 조회) -> join fetch는 N+1문제가 발생하지 않는다.
+
 }

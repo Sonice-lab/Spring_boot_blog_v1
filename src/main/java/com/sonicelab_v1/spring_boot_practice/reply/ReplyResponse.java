@@ -1,8 +1,5 @@
 package com.sonicelab_v1.spring_boot_practice.reply;
-
-
 import com.sonicelab_v1.spring_boot_practice._core.util.MyDateUtil;
-import com.sonicelab_v1.spring_boot_practice.user.SessionUserDto;
 import lombok.Data;
 
 public class ReplyResponse {
@@ -31,8 +28,8 @@ public class ReplyResponse {
             this.comment = reply.getComment();
             // join fetch로 바로 가져와서 활용
             this.username = reply.getUser().getUsername();
-            if(reply.getCreateAt() != null) {
-                this.createdAt = MyDateUtil.timestampFormat(reply.getCreateAt());
+            if(reply.getCreatedAt() != null) {
+                this.createdAt = MyDateUtil.timestampFormat(reply.getCreatedAt());
             }
             this.isOwner = reply.isOwner(sessionUserId);
         }
