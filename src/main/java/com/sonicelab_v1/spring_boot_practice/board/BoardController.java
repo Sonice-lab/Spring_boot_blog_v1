@@ -15,7 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Slf4j
@@ -32,11 +35,23 @@ public class BoardController {
 
     // 1. 게시글 목록 조회
     @GetMapping({"/", "/board/list"})
-    public String list(Model model) {
-        List<BoardResponse.ListDto> boardList = boardService.findAll();
-        model.addAttribute("boardList", boardList);
+    public String list(@RequestParam(name = "page", defaultValue = "1") int page,
+                       @RequestParam(name = "size", defaultValue = "3") int size,
+                       @RequestParam(name = "keyword", defaultValue = "") String keyword,
+                       Model model) {
+        // 연산하기 위해 값을 던져야 하다.
+        BoardResponse.PageDto pageDto = boardService.findAllPage(page, size, keyword);
+        model.addAttribute("boardPage", pageDto);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("isSearch", !keyword.isBlank());
+
+        // 한글이나 특수문자 깨짐 방지
+        // 페이지 링크는 직접 URL 인코딩이 필요하다.
+        model.addAttribute("keywordParam", URLEncoder.encode(keyword, StandardCharsets.UTF_8));
+
         return "board/list";
     }
+
 
     // 2. 게시글 상세보기
     // GET http://localhost:8080/board/3

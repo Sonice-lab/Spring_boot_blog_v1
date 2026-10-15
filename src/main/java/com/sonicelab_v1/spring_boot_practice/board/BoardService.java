@@ -9,6 +9,10 @@ import com.sonicelab_v1.spring_boot_practice.user.User;
 import com.sonicelab_v1.spring_boot_practice.user.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,19 +60,21 @@ public class BoardService {
     }
 
     // 3. 게시글 목록조회
-    public List<BoardResponse.ListDto> findAll() {
+    public BoardResponse.PageDto findAllPage(int page, int size, String keyword) {
         log.info("게시글 목록 조회 시작");
-        // 리스트 타입으로 변환
-        // 문제점: 정렬이 필요함(Order by가 통하지 않음)
-        List<Board> boardList = boardJpaRepository.findAllJoinUser();
-        // 메서드 참조 문법 활용
-        // 1. 리스트 안의 요소들을 컨베이어 벨트 위에 올려두고 하나씩 순차적으로 가공
-        // 2. 스트림으로 흘러가는 데이터들을 다른 형태의 객체로 변환(Mapping)해 주는 역할
-        // 3. map을 거치면서 Board에서 BoardResponse.ListDto로 변환된 요소들을 다시 모아
-        // 새로운 리스트(List<BoardResponse.ListDto>)로 묶어서 반환
-        return boardList.stream() // 1.
-                .map(BoardResponse.ListDto::new) // 2.
-                .toList(); // 3.
+        int pageIndex = Math.max(0, page - 1);
+        int validSize = Math.max(1, Math.min(50, size));
+
+        // 최신글이 먼저 오도록 아이디 내림차순 정렬(주문서 생성)
+        Pageable pageable = PageRequest.of(pageIndex, validSize, Sort.by(Sort.Direction.DESC, "id"));
+        // isBlank: null이 아닌 상태에서 공백 제거 후 개수 확인
+        Page<Board> boardPage;
+        if (keyword == null || keyword.isBlank()) {
+            boardPage = boardJpaRepository.findAllJoinUser(pageable);
+        } else {
+            boardPage = boardJpaRepository.findAllKeywordJoinUser(pageable, keyword);
+        }
+        return new BoardResponse.PageDto(boardPage);
     }
 
     // 4. 게시글 수정 화면 요청(인가 검사) - 권한체크

@@ -1,33 +1,32 @@
 {{> layout/header}}
 
 <style>
-    /* 게시글 카드 테마 */
+    /* 1. 게시글 카드 테마 */
     .card-custom-list {
-        border: 1px solid #E6E6FA; /* 라벤더 테두리 */
+        border: 1px solid #E6E6FA;
         border-radius: 12px;
         background-color: #ffffff;
         transition: all 0.3s ease-in-out;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     }
-
-    /* 카드 마우스 오버 효과 (살짝 위로 떠오르며 그림자 강조) */
     .card-custom-list:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(93, 67, 122, 0.08);
-        border-color: #B5EAD7; /* 라이트그린으로 테두리 전환 */
+        border-color: #B5EAD7;
     }
 
-    /* 텍스트 색상 */
+    /* 2. 텍스트 테마 */
     .text-theme-primary {
-        color: #5D437A; /* 짙은 보라색 */
+        color: #5D437A;
         font-weight: 700;
     }
     .text-theme-secondary {
-        color: #7A6F8B; /* 부드러운 보라빛 회색 */
+        color: #7A6F8B;
         font-size: 0.95rem;
     }
 
-    /* 상세보기 버튼 커스텀 (라이트그린) */
+    /* 3. 버튼 테마 */
+    /* 상세보기 (라이트그린) */
     .btn-custom-detail {
         background-color: #B5EAD7;
         color: #1B402E;
@@ -41,21 +40,56 @@
         background-color: #9CD5C0;
         color: #1B402E;
     }
+    /* 검색 버튼 (짙은 보라) */
+    .btn-custom-search {
+        background-color: #5D437A;
+        color: white;
+        border: none;
+        transition: all 0.3s;
+    }
+    .btn-custom-search:hover {
+        background-color: #4A3563;
+        color: white;
+    }
+    /* 초기화 버튼 (라벤더) */
+    .btn-custom-reset {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border: none;
+        transition: all 0.3s;
+    }
+    .btn-custom-reset:hover {
+        background-color: #D1D1F0;
+        color: #5D437A;
+    }
 
-    /* 페이지네이션 커스텀 */
+    /* 4. 입력창 포커스 효과 */
+    .form-control-custom:focus {
+        border-color: #5D437A;
+        box-shadow: 0 0 0 0.2rem rgba(93, 67, 122, 0.25);
+    }
+
+    /* 5. 페이지네이션 커스텀 */
     .pagination-custom .page-link {
-        color: #5D437A; /* 기본 글자색 (짙은 보라) */
-        border-color: #E6E6FA; /* 테두리 (라벤더) */
+        color: #5D437A;
+        border-color: #E6E6FA;
         background-color: white;
         margin: 0 3px;
         border-radius: 6px;
         transition: all 0.3s;
     }
     .pagination-custom .page-link:hover {
-        background-color: #E6E6FA; /* 호버 시 라벤더 배경 */
+        background-color: #E6E6FA;
         color: #5D437A;
         border-color: #E6E6FA;
     }
+    /* 활성화(Active)된 페이지 번호 (보라색 배경) */
+    .pagination-custom .page-item.active .page-link {
+        background-color: #5D437A;
+        color: white;
+        border-color: #5D437A;
+    }
+    /* 비활성화(Disabled)된 페이지 번호 */
     .pagination-custom .page-item.disabled .page-link {
         color: #B0A8B9;
         background-color: #FAFAFD;
@@ -64,7 +98,20 @@
 </style>
 
 <div class="container p-5">
-    {{#boardList}}
+
+    {{! 검색폼: GET 방식이라 주소가 /?keyword=...&page=1&size=4}}
+    <form action="/" method="get" class="d-flex mb-4">
+        <input type="text" class="form-control form-control-custom me-2" placeholder="제목 또는 내용으로 검색"
+               name="keyword" value="{{keyword}}">
+        <button type="submit" class="btn btn-custom-search text-nowrap me-2">검색</button>
+        <a href="/" class="btn btn-custom-reset text-nowrap">초기화</a>
+    </form>
+
+    {{#isSearch}}
+        <p class="text-theme-secondary mb-4"><b>{{keyword}}</b> 검색 결과: {{boardPage.totalElements}} 건</p>
+    {{/isSearch}}
+
+    {{#boardPage.content}}
         <div class="card card-custom-list mb-4">
             <div class="card-body d-flex justify-content-between align-items-center p-4">
                 <div>
@@ -80,14 +127,47 @@
                 </div>
             </div>
         </div>
-    {{/boardList}}
+    {{/boardPage.content}}
 
-    <!-- 페이지네이션 추후 구현 예정 -->
+    <!--게시글이 없을 때-->
+    {{^boardPage.content}}
+        <div class="text-center mt-5 mb-5 py-5 card-custom-list">
+            <h5 class="text-theme-secondary mt-3 mb-3">게시글이 없습니다.</h5>
+        </div>
+    {{/boardPage.content}}
+
+    <!--페이지네이션 동적 렌더링-->
     <ul class="pagination pagination-custom d-flex justify-content-center mt-5">
-        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        {{! 이전 }}
+        {{#boardPage.hasPrevious}}
+            <li class="page-item ">
+                <a class="page-link" href="/?page={{boardPage.previousPage}}&size={{boardPage.size}}&keyword={{keywordParam}}">Previous</a>
+            </li>
+        {{/boardPage.hasPrevious}}
+
+        {{^boardPage.hasPrevious}}
+            <li class="page-item disabled "><a class="page-link">Previous</a></li>
+        {{/boardPage.hasPrevious}}
+
+        {{!페이지 번호}}
+        {{#boardPage.pagesLinks}}
+            <li class="page-item {{#active}}active{{/active}}">
+                <a class="page-link" href="/?page={{number}}&size={{boardPage.size}}&keyword={{keywordParam}}">{{number}}</a>
+            </li>
+        {{/boardPage.pagesLinks}}
+
+        {{! 다음}}
+        {{#boardPage.hasNext}}
+            <li class="page-item">
+                <a class="page-link" href="/?page={{boardPage.nextPage}}&size={{boardPage.size}}&keyword={{keywordParam}}">Next</a>
+            </li>
+        {{/boardPage.hasNext}}
+
+        {{^boardPage.hasNext}}
+            <li class="page-item disabled">
+                <a class="page-link">Next</a>
+            </li>
+        {{/boardPage.hasNext}}
     </ul>
 </div>
 
