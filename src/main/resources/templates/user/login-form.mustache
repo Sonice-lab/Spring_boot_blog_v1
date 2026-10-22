@@ -50,6 +50,23 @@
         background-color: #9CD5C0;
         color: #1B402E;
     }
+
+    /* 체크박스 기본(선택 해제) 상태의 테두리 색상 (연한 보라색) */
+    .form-check-input {
+        border-color: #d1c7e8;
+    }
+
+    /* 체크되었을 때의 배경색과 테두리색 (이미지의 부드러운 보라색) */
+    .form-check-input:checked {
+        background-color: #a191cb;
+        border-color: #a191cb;
+    }
+
+    /* 포커스(클릭/탭) 되었을 때 나타나는 아웃라인 색상 및 그림자 효과 */
+    .form-check-input:focus {
+        border-color: #a191cb;
+        box-shadow: 0 0 0 0.25rem rgba(161, 145, 203, 0.25);
+    }
 </style>
 
 <div class="container p-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
@@ -59,19 +76,24 @@
             <i class="fa-solid fa-right-to-bracket me-2"></i><b>로그인</b>
         </div>
         <div class="card-body p-4 p-md-5">
-            <!-- 원래 자원의 요청은 GET 요청이 일반적이다. 하지만 로그인 요청은 예외적으로
-                 사용자의 이름과 비밀번호를 작성해야되기 때문에
-                 보안상의 이유로 반드시 POST 요청을 해야한다. -->
             <form action="/login" method="post">
                 <div class="mb-4">
                     <label class="form-label fw-bold mb-2" style="color: #5D437A;">사용자명</label>
-                    <input type="text" class="form-control form-control-custom" placeholder="사용자명을 입력해 주세요." name="username">
+                    <!-- 수정 1: value 속성에 머스테치 문법으로 rememberUsername 값 주입 -->
+                    <input type="text" class="form-control form-control-custom" placeholder="사용자명을 입력해 주세요." name="username" value="{{#rememberUsername}}{{.}}{{/rememberUsername}}">
                 </div>
                 <div class="mb-5">
                     <label class="form-label fw-bold mb-2" style="color: #5D437A;">비밀번호</label>
                     <input type="password" class="form-control form-control-custom" placeholder="비밀번호를 입력해 주세요." name="password">
                 </div>
                 <button type="submit" class="btn btn-custom-submit form-control">로그인</button>
+
+                <div class="mt-3 form-check">
+                    <!-- 수정 2: rememberUsername 값이 존재하면 checked 속성 추가 -->
+                    <input type="checkbox" class="form-check-input" id="rememberId" name="rememberId"
+                           value="true" {{#rememberUsername}}checked{{/rememberUsername}}>
+                    <label class="form-check-label" for="rememberId">아이디 저장</label>
+                </div>
             </form>
         </div>
     </div>

@@ -1,0 +1,153 @@
+{{> layout/header}}
+
+<style>
+    /* 마이페이지 카드 테마 (공통 톤앤매너) */
+    .card-custom {
+        border: 1px solid #E6E6FA; /* 라벤더 테두리 */
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
+
+    /* 카드 헤더 커스텀 */
+    .card-header-custom {
+        background-color: #E6E6FA;
+        color: #5D437A; /* 짙은 보라색 텍스트 */
+        border-bottom: none;
+        font-size: 1.3rem;
+        padding: 1.2rem 1.5rem;
+        text-align: center;
+    }
+
+    /* 프로필 이미지 영역 커스텀 */
+    .profile-img-custom {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border: 3px solid #E6E6FA; /* 라벤더 테두리 강조 */
+        box-shadow: 0 4px 10px rgba(93, 67, 122, 0.08);
+    }
+
+    /* 프로필 이미지 없을 때 대체 영역 (연한 라벤더 배경) */
+    .profile-placeholder-custom {
+        width: 200px;
+        height: 200px;
+        background-color: #F4F4FC;
+        border: 2px dashed #D8D8F6;
+        color: #8E829E;
+        font-weight: 500;
+    }
+
+    /* 읽기 전용 텍스트 박스 커스텀 (form-control-plaintext와 톤앤매너 결합) */
+    .plaintext-custom {
+        background-color: #FAFAFE;
+        border: 1px solid #E6E6FA;
+        border-radius: 8px;
+        color: #554A63;
+        padding: 12px 14px;
+        font-size: 1.05rem;
+        margin-bottom: 0;
+    }
+
+    /* 메인 액션 버튼 커스텀 (라이트그린 - 회원 정보 수정) */
+    .btn-custom-submit {
+        background-color: #B5EAD7;
+        color: #1B402E;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 20px;
+        font-size: 1.05rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-custom-submit:hover {
+        background-color: #9CD5C0;
+        color: #1B402E;
+    }
+
+    /* 보조 버튼 커스텀 (라벤더 - 목록으로) */
+    .btn-custom-secondary {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 20px;
+        font-size: 1.05rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-custom-secondary:hover {
+        background-color: #D8D8F6;
+        color: #5D437A;
+    }
+
+    /* 삭제 버튼 커스텀 (파스텔 코랄 핑크 - 프로필 사진 삭제) */
+    .btn-custom-danger {
+        background-color: #FFD1DC;
+        color: #7A2E3E;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 6px 14px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .btn-custom-danger:hover {
+        background-color: #FFB8C9;
+        color: #7A2E3E;
+    }
+</style>
+
+<div class="container p-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <!-- 가독성과 몰입감을 위해 너비를 500px로 유지합니다 -->
+    <div class="card card-custom w-100" style="max-width: 500px;">
+        <div class="card-header card-header-custom">
+            <i class="fa-solid fa-circle-user me-2"><b>마이페이지</b></i>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                {{! 프로필 이미지가 있을 경우 }}
+                {{#user.profileImage}}
+                    <img src="/images/{{user.profileImage}}" alt="프로필 이미지" class="rounded-circle profile-img-custom">
+                    <form action="/user/profile-image/delete" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-sm btn-custom-danger"
+                                onclick="return confirm('사진을 삭제하시겠습니까?');">프로필 사진 삭제</button>
+                    </form>
+                {{/user.profileImage}}
+
+                {{! 프로필 이미지가 없을 경우 }}
+                {{^user.profileImage}}
+                    <div class="rounded-circle profile-placeholder-custom d-inline-flex align-items-center justify-content-center">
+                        <span>프로필 사진 없음</span>
+                    </div>
+                {{/user.profileImage}}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold mb-2" style="color: #5D437A;">사용자명</label>
+                <p class="form-control-plaintext plaintext-custom">{{user.username}}</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold mb-2" style="color: #5D437A;">이메일</label>
+                <p class="form-control-plaintext plaintext-custom">{{user.email}}</p>
+            </div>
+
+            <div class="mb-5">
+                <label class="form-label fw-bold mb-2" style="color: #5D437A;">가입일</label>
+                <p class="form-control-plaintext plaintext-custom">{{user.createdAt}}</p>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="/user/update" class="btn btn-custom-submit flex-grow-1">회원 정보 수정</a>
+                <a href="/" class="btn btn-custom-secondary flex-grow-1">목록으로</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}

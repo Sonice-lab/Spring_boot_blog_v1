@@ -1,5 +1,6 @@
 package com.sonicelab_v1.spring_boot_practice.user;
 
+import com.sonicelab_v1.spring_boot_practice._core.util.MyDateUtil;
 import lombok.Data;
 
 public class UserResponse {
@@ -18,18 +19,41 @@ public class UserResponse {
         }
     }
 
-    // 2. 회원정보 수정 화면 응답 DTO
+    // 회원정보 수정 화면 응답 DTO
     @Data
     public static class updateFormDto {
         private Long id;
         private String username;
         private String email;
+        private String profileImage; // 추가
 
         public updateFormDto(User user) {
             this.id = user.getId();
             this.username = user.getUsername();
             this.email = user.getEmail();
+            this.profileImage = user.getProfileImage();
         }
     }
+
+    // 마이페이지 응답 DTO
+    @Data
+    public static class DetailDto {
+        private Long id;
+        private String username;
+        private String email;
+        private String profileImage; // 파일 이름 (없으면 null)
+        private String createdAt; // 포맷된 가입일
+
+        public DetailDto(User user) {
+            this.id = user.getId();
+            this.username = user.getUsername();
+            this.email = user.getEmail();
+            this.profileImage = user.getProfileImage();
+            this.createdAt = MyDateUtil.timestampFormat(user.getCreatedAt());;
+        }
+    }
+
+
+
 
 }

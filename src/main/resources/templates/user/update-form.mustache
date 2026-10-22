@@ -19,6 +19,25 @@
         text-align: center;
     }
 
+    /* 프로필 이미지 영역 커스텀 */
+    .profile-img-custom {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border: 3px solid #E6E6FA;
+        box-shadow: 0 4px 10px rgba(93, 67, 122, 0.08);
+    }
+
+    /* 프로필 이미지 없을 때 대체 영역 (연한 라벤더 배경) */
+    .profile-placeholder-custom {
+        width: 200px;
+        height: 200px;
+        background-color: #F4F4FC;
+        border: 2px dashed #D8D8F6;
+        color: #8E829E;
+        font-weight: 500;
+    }
+
     /* 입력창 커스텀 */
     .form-control-custom {
         border: 1px solid #E6E6FA;
@@ -35,14 +54,29 @@
         color: #B0A8B9;
     }
 
+    /* 파일 선택 버튼 커스텀 (라벤더 톤앤매너 적용) */
+    .form-control-custom[type="file"]::file-selector-button {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        margin: 0 12px 0 4px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .form-control-custom[type="file"]:hover::file-selector-button {
+        background-color: #D8D8F6;
+    }
+
     /* 읽기 전용(readonly) 입력창 스타일 설정 */
     .readonly-custom {
         background-color: #FAFAFD !important; /* 아주 옅은 회보라색 배경 */
         color: #7A6F8B; /* 텍스트 색상을 약간 흐리게 */
-        cursor: not-allowed; /* 마우스 커서를 차단 모양으로 변경 */
+        cursor: not-allowed;
     }
     .readonly-custom:focus {
-        border-color: #E6E6FA; /* 포커스 효과 제거 */
+        border-color: #E6E6FA;
         box-shadow: none;
     }
 
@@ -61,29 +95,91 @@
         background-color: #9CD5C0;
         color: #1B402E;
     }
+
+    /* 취소 버튼 커스텀 (라벤더) */
+    .btn-custom-secondary {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 14px;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+        display: block;
+    }
+    .btn-custom-secondary:hover {
+        background-color: #D8D8F6;
+        color: #5D437A;
+    }
+
+    /* 삭제 버튼 커스텀 (파스텔 코랄 핑크) */
+    .btn-custom-danger {
+        background-color: #FFD1DC;
+        color: #7A2E3E;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 6px 14px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .btn-custom-danger:hover {
+        background-color: #FFB8C9;
+        color: #7A2E3E;
+    }
 </style>
 
 <div class="container p-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
     <div class="card card-custom w-100" style="max-width: 500px;">
         <div class="card-header card-header-custom">
-            <!-- 사용자 설정(톱니바퀴) 아이콘 추가 -->
             <i class="fa-solid fa-user-gear me-2"></i><b>회원정보 수정</b>
         </div>
         <div class="card-body p-4 p-md-5">
-            <form action="/user/update" method="post">
+
+            <!-- 프로필 이미지 및 삭제 영역 -->
+            <div class="text-center mb-4">
+                {{! 프로필 이미지가 있을 경우 }}
+                {{#user.profileImage}}
+                    <img src="/images/{{user.profileImage}}" alt="프로필 이미지" class="rounded-circle profile-img-custom">
+                    <form action="/user/profile-image/delete" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-sm btn-custom-danger"
+                                onclick="return confirm('사진을 삭제하시겠습니까?');">프로필 사진 삭제</button>
+                    </form>
+                {{/user.profileImage}}
+
+                {{! 프로필 이미지가 없을 경우 }}
+                {{^user.profileImage}}
+                    <div class="rounded-circle profile-placeholder-custom d-inline-flex align-items-center justify-content-center">
+                        <span>프로필 사진 없음</span>
+                    </div>
+                {{/user.profileImage}}
+            </div>
+
+            <!-- 회원정보 수정 폼 -->
+            <form action="/user/update" method="post" enctype="multipart/form-data">
                 <div class="mb-4">
                     <label class="form-label fw-bold mb-2" style="color: #5D437A;">사용자명</label>
                     <input type="text" class="form-control form-control-custom readonly-custom" value="{{user.username}}" readonly>
                 </div>
                 <div class="mb-4">
                     <label class="form-label fw-bold mb-2" style="color: #5D437A;">새 비밀번호</label>
-                    <input type="password" class="form-control form-control-custom" placeholder="새 비밀번호를 입력해 주세요." name="password">
+                    <input type="password" class="form-control form-control-custom" placeholder="변경할 때만 입력하세요." name="password">
                 </div>
-                <div class="mb-5">
+                <div class="mb-4">
                     <label class="form-label fw-bold mb-2" style="color: #5D437A;">이메일</label>
                     <input type="email" class="form-control form-control-custom readonly-custom" name="email" value="{{user.email}}" readonly>
                 </div>
-                <button type="submit" class="btn btn-custom-submit form-control">수정 완료</button>
+                <div class="mb-5">
+                    <label for="profileImage" class="form-label fw-bold mb-2" style="color: #5D437A;">프로필 이미지</label>
+                    <input type="file" class="form-control form-control-custom" id="profileImage" name="profileImage" accept="image/*">
+                    <small class="d-block mt-2" style="color: #8E829E;">새 사진을 고르지 않으면 지금 사진이 그대로 유지됩니다.</small>
+                </div>
+
+                <button type="submit" class="btn btn-custom-submit form-control mb-2">수정 완료</button>
+                <a href="/user/detail" class="btn btn-custom-secondary form-control">취소</a>
             </form>
         </div>
     </div>

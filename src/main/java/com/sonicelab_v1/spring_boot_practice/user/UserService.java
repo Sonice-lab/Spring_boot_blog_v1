@@ -2,6 +2,7 @@ package com.sonicelab_v1.spring_boot_practice.user;
 
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception400;
 import com.sonicelab_v1.spring_boot_practice._core.error.Exception404;
+import com.sonicelab_v1.spring_boot_practice._core.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,14 +49,16 @@ public class UserService {
                     throw new Exception400("이미 사용중인 이메일입니다.");
                 });
 
-        // 3. 데이터 저장
-        User savedUser = userJpaRepository.save(joinDto.toEntity());
-        log.info("회원가입 서비스 처리 완료 - 사용자명: {}, ID: {}",
-                joinDto.getUsername(), savedUser.getId());
+        // 3. 프로필 이미지 저장 ( 새로게 생긴 파일 이름이 리턴 됨)
+        String profileImage = FileUtil.saveImage(joinDto.getProfileImage());
+
+        // 4. 프로필 파일 이름과 회원 정보 저장
+        User savedUser = userJpaRepository.save(joinDto.toEntity(profileImage));
+        log.info("회원가입 서비스 처리 완료 - 사용자명: {}, ID: {} ", joinDto.getUsername(), savedUser.getId());
         return new UserResponse.JoinDto(savedUser);
     }
 
-    // 4. 로그인 처리 -> 조회 기능과 관련 있음
+    // 5. 로그인 처리 -> 조회 기능과 관련 있음
     public SessionUserDto login(UserRequest.LoginDto loginDto) {
         log.info("로그인 서비스 처리 시작 - 사용자명: {}", loginDto.getUsername());
 
@@ -70,28 +73,58 @@ public class UserService {
         return new SessionUserDto(user);
     }
 
-    // 5. 회원정보 수정화면: 화면에 필요한 값만 담는 DTO 변환
+    // 6. 회원정보 수정화면: 화면에 필요한 값만 담는 DTO 변환
     public UserResponse.updateFormDto findUpdateForm(Long userId) {
         User user = findById(userId);
         return new UserResponse.updateFormDto(user);
     }
 
-    // 6. 회원정보 수정 처리(Dirty Checking 활용)
-    // 사용자 정보 수정 기능 구현
+    // 7. 회원정보 수정 처리(Dirty Checking 활용)
+    /**
+     * 회원 정보 수정 처리 (Dirty Checking 활용)
+     *
+     * @param id 사용자 PK
+     * @param updateDto 수정할 정보
+     * @return 수정된 사용자 정보
+     */
+// 세션 동기화용 DTO 반환
     @Transactional
     public SessionUserDto updateById(Long id, UserRequest.UpdateDto updateDto) {
-        //유저 조회
+        // 1. 정보 조회
         User user = findById(id);
-
-        // 더티체킹
-        user.update(updateDto.getPassword());
+        // 2. 비밀번호 조회
+        if (updateDto.hasPassword()) {
+            user.update(updateDto.getPassword());
+        }
+        // 3. 새 이미지를 골랐을 때만 교체
+        if (updateDto.hasProfileImage()) {
+            String newImage = FileUtil.saveImage(updateDto.getProfileImage());
+            String oldImage = user.getProfileImage();
+            user.updateProfileImage(newImage); // DB에는 새 파일 이름 (변경 감지)
+            FileUtil.deleteFile(oldImage);
+        }
+        // 4. 세션 동기화용 DTO 변환
         return new SessionUserDto(user);
     }
 
-    // 6. 사용자 정보 조회
+    // 8. 사용자 정보 조회
     public User findById(Long id) {
         log.info("사용자 정보 조회 - id: {}", id);
         return userJpaRepository.findById(id).orElseThrow(() ->
                 new Exception404("사용자를 찾을 수 없습니다."));
+    }
+
+    // 마이페이지 조회 기능
+    public UserResponse.DetailDto findDetail(Long userId) {
+        User user = findById(userId);
+        return new UserResponse.DetailDto(user);
+    }
+
+    @Transactional
+    public void deleteProfileImage(Long userId) {
+        User user = findById(userId);
+        String oldImage = user.getProfileImage();
+        user.updateProfileImage(null); // 1. DB에  파일 이미지 비우기 (변경 감지)
+        FileUtil.deleteFile(oldImage); // 2. 폴더 실제 파일 삭제
     }
 }

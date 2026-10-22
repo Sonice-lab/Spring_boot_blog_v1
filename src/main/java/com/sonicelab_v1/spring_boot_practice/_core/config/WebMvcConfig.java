@@ -4,10 +4,13 @@ package com.sonicelab_v1.spring_boot_practice._core.config;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.IpBlockInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.LoginInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.SessionUserModelInterceptor;
+import com.sonicelab_v1.spring_boot_practice._core.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import java.nio.file.Paths;
 
 
 @RequiredArgsConstructor // 의존성 주입
@@ -43,5 +46,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // \\d+는 정규 표현식으로 1개 이상의 숫자를 의미
         // 예시) /board/1, /board/123 (상세보기)는 로그인이 없어도 접근 가능
         // /board/1/update 처럼 뒤에 경로가 더 붙는 경우 제외대상이 아니게 된다.
+    }
+
+    // 업로드 폴더의 파일을 /images/** 주소로 제공
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 업로드 폴더 경로를 file:///.... 형식의 주소로 변환(운영체제에 맞게 자동 변환)
+        String location = Paths.get(FileUtil.UPLOAD_DIR).toUri().toString();
+
+        // 윈도우 기준 예시 -> C:\Users\사용자명\blog_uploads\ -> 이 주소로 바꿈
+        // 방어적 코드: 폴더 위치는 반드시 /로 끝나야 그 안의 파일을 찾을 수 있음
+        if(!location.endsWith("/")) {
+            location = location + "/";
+        }
+
+        // 핵심 키워드 ->
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations(location);
+
     }
 }
