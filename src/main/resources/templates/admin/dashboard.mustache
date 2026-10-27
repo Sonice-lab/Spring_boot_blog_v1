@@ -1,0 +1,122 @@
+{{> layout/header}}
+
+<style>
+    /* 공통 톤앤매너 (별도 CSS 파일에 이미 있다면 생략 가능) */
+    .card-custom {
+        border: 1px solid #E6E6FA;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border-bottom: none;
+        font-size: 1.3rem;
+        font-weight: 700;
+        padding: 1.2rem 1.5rem;
+        text-align: center;
+    }
+
+    .plaintext-custom {
+        background-color: #FAFAFE;
+        border: 1px solid #E6E6FA;
+        border-radius: 8px;
+        color: #554A63;
+        padding: 16px 20px;
+        font-size: 1.05rem;
+        margin-bottom: 0;
+    }
+
+    .btn-custom-submit {
+        background-color: #B5EAD7;
+        color: #1B402E;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 24px;
+        font-size: 1.05rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    .btn-custom-submit:hover {
+        background-color: #9CD5C0;
+        color: #1B402E;
+    }
+
+    .btn-custom-secondary {
+        background-color: #E6E6FA;
+        color: #5D437A;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 12px 24px;
+        font-size: 1.05rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    .btn-custom-secondary:hover {
+        background-color: #D8D8F6;
+        color: #5D437A;
+    }
+
+    /* 관리자 전용 포인트 스타일 */
+    .admin-badge {
+        background-color: #FFD1DC; /* 파스텔 코랄 핑크 */
+        color: #7A2E3E;            /* 짙은 버건디 텍스트 */
+        border: 1px solid #FFB8C9;
+        font-size: 0.85rem;
+        font-weight: 700;
+        padding: 5px 14px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+
+    .admin-name-highlight {
+        color: #5D437A;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+
+</style>
+
+<div class="container p-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-custom">
+                <!-- 카드 헤더 -->
+                <div class="card-header card-header-custom">
+                    관리자 대시보드
+                </div>
+
+                <!-- 카드 바디 -->
+                <div class="card-body p-4 text-center">
+                    <span class="admin-badge">ADMIN ACCESS</span>
+
+                    <p class="mb-4" style="color: #554A63; font-size: 1.1rem;">
+                        안녕하세요, <span class="admin-name-highlight">{{adminName}}</span> 님!
+                    </p>
+
+                    <!-- 안내 문구 박스 (plaintext-custom 활용) -->
+                    <div class="plaintext-custom mb-4">
+                        🔒 이 페이지는 <strong>관리자(ADMIN) 권한</strong>을 가진 사용자만 접근할 수 있는 전용 공간입니다.
+                    </div>
+
+                    <!-- 하단 액션 버튼 영역 -->
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <a href="/" class="btn-custom-secondary">메인으로 돌아가기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> layout/footer}}

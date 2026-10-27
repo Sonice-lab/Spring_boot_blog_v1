@@ -1,6 +1,7 @@
 package com.sonicelab_v1.spring_boot_practice._core.config;
 
 
+import com.sonicelab_v1.spring_boot_practice._core.interceptor.AdminInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.IpBlockInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.LoginInterceptor;
 import com.sonicelab_v1.spring_boot_practice._core.interceptor.SessionUserModelInterceptor;
@@ -21,6 +22,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final IpBlockInterceptor ipBlockInterceptor;
     private final LoginInterceptor loginInterceptor;
     private final SessionUserModelInterceptor sessionUserModelInterceptor;
+    private final AdminInterceptor adminInterceptor;
 
     //loginInterceptor를 시스템에 등록
     //내가 정의한 인터셉트를 설정 클래스에 등록할 수 있다.
@@ -39,13 +41,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 2. 로그인이 되지 않고는 접근할 수 없는 경우 로그인 요청 관련 인터셉터
         registry.addInterceptor(loginInterceptor)
                 // 인터셉터가 동작할  URL 패턴을 지정
-                .addPathPatterns("/user/**", "/board/**", "/reply/**")
+                .addPathPatterns("/user/**", "/board/**", "/reply/**", "/admin/**")
                 // 인터셉터에서 제외할 URL 패턴을 지정할 수 있다.
                 .excludePathPatterns("/board/list", "/board/{id:\\d+}", "/error");
 
         // \\d+는 정규 표현식으로 1개 이상의 숫자를 의미
         // 예시) /board/1, /board/123 (상세보기)는 로그인이 없어도 접근 가능
         // /board/1/update 처럼 뒤에 경로가 더 붙는 경우 제외대상이 아니게 된다.
+
+        // 3. 관리자 검사: 로그인 검사 다음에 등록 (등록한 순서대로 실행됨)
+        registry.addInterceptor(adminInterceptor)
+                .addPathPatterns("/admin/**");
     }
 
     // 업로드 폴더의 파일을 /images/** 주소로 제공

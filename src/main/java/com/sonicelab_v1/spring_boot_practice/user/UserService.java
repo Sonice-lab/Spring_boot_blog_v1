@@ -38,22 +38,24 @@ public class UserService {
         // 1. 중복체크하기 - 이미 있으면 null이 아님(ifPresent 차이점 확인)
         userJpaRepository.findByUsername(joinDto.getUsername())
                 .ifPresent(user -> {
-                    log.warn("회원가입 실패 - 중복된 사용자명: {}", joinDto.getUsername());
                     throw new Exception400("이미 존재하는 사용자명입니다.");
                 });
 
         // 2. 이메일 중복 검사
         userJpaRepository.findByEmail(joinDto.getEmail())
                 .ifPresent(user -> {
-                    log.warn("회원가입 실패 - 중복된 이메일: {}", joinDto.getEmail());
                     throw new Exception400("이미 사용중인 이메일입니다.");
                 });
 
-        // 3. 프로필 이미지 저장 ( 새로게 생긴 파일 이름이 리턴 됨)
+        // 3. 프로필 이미지 저장 ( 새롭게 생긴 파일 이름이 리턴 됨)
         String profileImage = FileUtil.saveImage(joinDto.getProfileImage());
 
-        // 4. 프로필 파일 이름과 회원 정보 저장
-        User savedUser = userJpaRepository.save(joinDto.toEntity(profileImage));
+        // 4. 엔티티 생성 후 기본 역할 USER 부여
+        User user = joinDto.toEntity(profileImage);
+        user.addRole(Role.USER);
+
+        // 5. 프로필 파일 이름과 회원 정보 저장(cascade 로 UserRole도 함께 INSERT)
+        User savedUser = userJpaRepository.save(user);
         log.info("회원가입 서비스 처리 완료 - 사용자명: {}, ID: {} ", joinDto.getUsername(), savedUser.getId());
         return new UserResponse.JoinDto(savedUser);
     }

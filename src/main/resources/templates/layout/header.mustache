@@ -14,14 +14,17 @@
             background: linear-gradient(135deg, #E6E6FA 0%, #B5EAD7 100%);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* 헤더 아래에 부드러운 그림자 추가 */
         }
+
         .navbar-custom .navbar-brand {
             color: #5D437A; /* 라벤더와 어울리며 가독성이 좋은 짙은 보라색 */
             font-weight: 800;
             font-size: 1.4rem;
         }
+
         .navbar-custom .navbar-brand:hover {
             color: #422D5A;
         }
+
         .navbar-custom .nav-link {
             color: #554A63;
             font-weight: 500;
@@ -30,22 +33,57 @@
             border-radius: 8px; /* 메뉴 버튼을 둥글게 처리 */
             transition: all 0.3s ease-in-out;
         }
+
         .navbar-custom .nav-link:hover {
             background-color: #E2F5EC; /* 마우스를 올렸을 때 나타나는 밝은 라이트그린 배경 */
             color: #2F694D; /* 텍스트는 짙은 그린으로 변경되어 포인트 효과 */
         }
+
         /* 모바일 화면 햄버거 메뉴 아이콘 색상 커스텀 (밝은 배경에 맞게 어둡게 조정) */
         .navbar-custom .navbar-toggler {
             border-color: rgba(93, 67, 122, 0.2);
         }
+
         .navbar-custom .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(93, 67, 122, 0.7)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* 공통 역할 뱃지 기본 모양 */
+        .badge-role {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 1. ADMIN 뱃지 (파스텔 코랄 핑크 - 상단바의 민트색 배경 위에서 화사하게 돋보임) */
+        .badge-role-admin {
+            background-color: #FFD1DC;
+            color: #7A2E3E;
+            border: 1px solid #FFB8C9;
+            box-shadow: 0 2px 4px rgba(122, 46, 62, 0.08);
+        }
+
+        /* (선택) 만약 ADMIN을 검색 버튼처럼 묵직한 진보라색으로 하고 싶다면 이 클래스를 사용하세요 */
+        .badge-role-admin-dark {
+            background-color: #5D437A;
+            color: #FFFFFF;
+        }
+
+        /* 2. USER 뱃지 (파스텔 라벤더 - 차분하고 깔끔한 일반 등급 표시) */
+        .badge-role-user {
+            background-color: #E6E6FA;
+            color: #5D437A;
+            border: 1px solid #D8D8F6;
+            box-shadow: 0 2px 4px rgba(93, 67, 122, 0.06);
         }
     </style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-<!-- 기존 bg-dark navbar-dark 클래스를 제거하고 navbar-custom을 적용했습니다. -->
 <nav class="navbar navbar-expand-sm navbar-custom">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">Tencoding</a>
@@ -59,6 +97,11 @@
                     <li class="nav-item"><a class="nav-link" href="/board/save">글쓰기</a></li>
                     <li class="nav-item"><a class="nav-link" href="/user/detail">회원정보</a></li>
                     <li class="nav-item"><a class="nav-link" href="/logout">로그아웃</a></li>
+
+                    {{#isAdmin}}
+                    {{! 관리자에게만 보이는 메뉴 }}
+                        <li class="nav-item"><a class="nav-link" href="/admin/dashboard">관리자</a></li>
+                    {{/isAdmin}}
                 {{/sessionUserDto}}
 
                 {{^sessionUserDto}}
@@ -67,9 +110,26 @@
                     <li class="nav-item"><a class="nav-link" href="/login">로그인</a></li>
                 {{/sessionUserDto}}
             </ul>
+
+            {{! 오른쪽: 역할 뱃지와 사용자명 }}
+            <ul class="navbar-nav ms-auto">
+                {{#sessionUserDto}}
+                    <li class="nav-item d-flex align-items-center">
+                        {{! isAdmin 여부에 따라 뱃지 색상을 다르게 적용하고, 텍스트는 기존의 roleDisplay를 그대로 출력 }}
+                        {{#isAdmin}}
+                            <span class="badge-role badge-role-admin me-2">{{roleDisplay}}</span>
+                        {{/isAdmin}}
+                        {{^isAdmin}}
+                            <span class="badge-role badge-role-user me-2">{{roleDisplay}}</span>
+                        {{/isAdmin}}
+
+                        <span class="navbar-username">{{username}} 님</span>
+                    </li>
+                {{/sessionUserDto}}
+            </ul>
+
         </div>
     </div>
 </nav>
-
 </body>
 </html>
